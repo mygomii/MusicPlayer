@@ -1,6 +1,4 @@
-package com.mygomii.musicplayer.presentations
-
-import com.mygomii.musicplayer.data.models.Track
+package com.mygomii.musicplayer.data.models
 
 val getTracks = listOf(
     Track(
