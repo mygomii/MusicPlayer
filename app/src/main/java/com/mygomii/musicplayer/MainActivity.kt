@@ -236,8 +236,8 @@ class MainActivity : ComponentActivity() {
                                     .padding(horizontal = 20.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(text = formatTime(playbackPosition), color = Color.White)
-                                Text(text = formatTime(duration), color = Color.White)
+                                Text(text = playbackPosition.toString(), color = Color.White)
+                                Text(text = duration.toString(), color = Color.White)
                             }
                         }
 
@@ -262,12 +262,5 @@ class MainActivity : ComponentActivity() {
 
         super.onDestroy()
     }
-}
-
-fun formatTime(millis: Long): String {
-    val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
 }
 
