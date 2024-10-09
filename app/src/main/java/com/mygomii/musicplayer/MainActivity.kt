@@ -3,6 +3,7 @@ package com.mygomii.musicplayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,13 +60,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         exoPlayer = ExoPlayer.Builder(this).build()
 
         setContent {
             MusicPlayerTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                        .padding(vertical = 26.dp),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var currentTrack by remember { mutableStateOf<Track?>(null) }
@@ -158,6 +163,7 @@ class MainActivity : ComponentActivity() {
                                 onClick = { showPlayingView = false },
                                 modifier = Modifier
                                     .size(50.dp)
+                                    .padding(12.dp)
                                     .align(Alignment.End)
                             ) {
                                 Icon(
