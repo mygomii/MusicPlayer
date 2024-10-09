@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -86,32 +85,122 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Column {
-                        TrackList(getTracks) { selectedTrack ->
-                            println("#### $selectedTrack")
+                        LazyColumn(
+                            modifier = Modifier
+                                .background(Color.Black),
+                            contentPadding = PaddingValues(5.dp)
+                        ) {
 
-                            if (currentTrack == null || currentTrack != selectedTrack) {
-                                currentTrack = selectedTrack
-                                showPlayingView = true
-                                playTrack(selectedTrack.uri)
-                                isPlaying = true
+                            items(getTracks.size) { index ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(all = 4.dp)
+                                        .clip(shape = RoundedCornerShape(8.dp))
+                                        .background(color = Color.DarkGray)
+                                        .padding(all = 12.dp)
+                                        .clickable {
+                                            println("#### ${getTracks[index]}")
 
-                                return@TrackList
-                            }
+                                            if (currentTrack == null || currentTrack != getTracks[index]) {
+                                                currentTrack = getTracks[index]
+                                                showPlayingView = true
+                                                playTrack(getTracks[index].uri)
+                                                isPlaying = true
+
+                                                return@clickable
+                                            }
 
 
-                            if (currentTrack == selectedTrack) {
-                                showPlayingView = true
+                                            if (currentTrack == getTracks[index]) {
+                                                showPlayingView = true
+                                            }
+                                        }
+
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = getTracks[index].image.getImage(LocalContext.current)),
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .size(60.dp)
+                                    )
+
+                                    Column {
+                                        Text(
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 0.dp),
+                                            text = getTracks[index].title,
+                                            fontSize = 20.sp,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
+                                            text = getTracks[index].artist,
+                                            fontSize = 18.sp,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
 
                     if (currentTrack != null && showPlayingView) {
-                        PlayerControls(
-                            track = currentTrack!!,
-                            isPlaying = isPlaying,
-                            playbackPosition = playbackPosition,
-                            duration = duration,
-                            onPlayPause = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.Black),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            IconButton(
+                                onClick = { showPlayingView = false },
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .align(Alignment.End)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "close",
+                                    tint = Color.White,
+                                )
+                            }
+                            Image(
+                                painter = painterResource(id = currentTrack!!.image.getImage(LocalContext.current)),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        spotColor = Color(0x26000000),
+                                        ambientColor = Color(0x26000000)
+                                    )
+                                    .padding(top = 24.dp)
+                                    .clip(shape = RoundedCornerShape(size = 50.dp))
+                                    .width(360.dp)
+                                    .height(360.dp)
+                            )
+
+                            Text(
+                                color = Color.White,
+                                text = currentTrack!!.title,
+                                fontSize = 20.sp,
+                                modifier = Modifier
+                                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                            )
+
+                            Text(
+                                color = Color.LightGray,
+                                text = currentTrack!!.artist,
+                                fontSize = 16.sp,
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 16.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            IconButton(onClick = {
                                 if (exoPlayer.isPlaying) {
                                     exoPlayer.pause()
                                     isPlaying = false
@@ -119,15 +208,39 @@ class MainActivity : ComponentActivity() {
                                     exoPlayer.play()
                                     isPlaying = true
                                 }
-                            },
-                            onSeek = { position ->
-                                exoPlayer.seekTo(position)
-                                playbackPosition = position
-                            },
-                            onCloseClick = {
-                                showPlayingView = false
+                            }, modifier = Modifier.size(48.dp)) {
+                                Icon(
+                                    painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
+                                    modifier = Modifier.size(48.dp),
+                                    tint = Color.White,
+                                    contentDescription = if (isPlaying) "Pause" else "Play"
+                                )
                             }
-                        )
+
+                            Slider(
+                                value = playbackPosition.coerceAtLeast(0L).toFloat(),
+                                onValueChange = { newPosition ->
+                                    exoPlayer.seekTo(newPosition.toLong())
+                                    playbackPosition = newPosition.toLong()
+
+                                },
+                                valueRange = 0f..duration.coerceAtLeast(0L).toFloat(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                            )
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = formatTime(playbackPosition), color = Color.White)
+                                Text(text = formatTime(duration), color = Color.White)
+                            }
+                        }
+
                     }
 
 
@@ -145,159 +258,9 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         exoPlayer.release()
-    }
-}
 
-
-@Composable
-fun TrackList(tracks: List<Track>, onTrackSelected: (Track) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .background(Color.Black),
-        contentPadding = PaddingValues(5.dp)
-    ) {
-
-        items(tracks.size) { index ->
-            TrackListItem(track = tracks[index], onTrackSelected)
-        }
-    }
-
-}
-
-@Composable
-fun TrackListItem(track: Track, onTrackSelected: (Track) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(all = 4.dp)
-            .clip(shape = RoundedCornerShape(8.dp))
-            .background(color = Color.DarkGray)
-            .padding(all = 12.dp)
-            .clickable { onTrackSelected(track) }
-
-    ) {
-        Image(
-            painter = painterResource(id = track.image.getImage(LocalContext.current)),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(60.dp)
-        )
-
-        Column {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 0.dp),
-                text = track.title,
-                fontSize = 20.sp,
-                color = Color.White
-            )
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
-                text = track.artist,
-                fontSize = 18.sp,
-                color = Color.White
-            )
-        }
-    }
-}
-
-
-@Composable
-fun PlayerControls(
-    track: Track,
-    isPlaying: Boolean,
-    playbackPosition: Long,
-    duration: Long,
-    onPlayPause: () -> Unit,
-    onSeek: (Long) -> Unit,
-    onCloseClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Black),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        IconButton(
-            onClick = onCloseClick,
-            modifier = Modifier
-                .size(50.dp)
-                .align(Alignment.End)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "close",
-                tint = Color.White,
-            )
-        }
-        Image(
-            painter = painterResource(id = track.image.getImage(LocalContext.current)),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .shadow(
-                    elevation = 10.dp,
-                    spotColor = Color(0x26000000),
-                    ambientColor = Color(0x26000000)
-                )
-                .padding(top = 24.dp)
-                .clip(shape = RoundedCornerShape(size = 50.dp))
-                .width(360.dp)
-                .height(360.dp)
-        )
-
-        Text(
-            color = Color.White,
-            text = track.title,
-            fontSize = 20.sp,
-            modifier = Modifier
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-        )
-
-        Text(
-            color = Color.LightGray,
-            text = track.artist,
-            fontSize = 16.sp,
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        IconButton(onClick = onPlayPause, modifier = Modifier.size(48.dp)) {
-            Icon(
-                painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
-                modifier = Modifier.size(48.dp),
-                tint = Color.White,
-                contentDescription = if (isPlaying) "Pause" else "Play"
-            )
-        }
-
-        Slider(
-            value = playbackPosition.coerceAtLeast(0L).toFloat(),
-            onValueChange = { newPosition ->
-                onSeek(newPosition.toLong())
-            },
-            valueRange = 0f..duration.coerceAtLeast(0L).toFloat(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = formatTime(playbackPosition), color = Color.White)
-            Text(text = formatTime(duration), color = Color.White)
-        }
-
+        super.onDestroy()
     }
 }
 
