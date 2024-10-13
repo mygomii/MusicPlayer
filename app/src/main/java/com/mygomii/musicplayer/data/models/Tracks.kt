@@ -1,5 +1,7 @@
 package com.mygomii.musicplayer.data.models
 
+import com.mygomii.musicplayer.domain.models.Track
+
 val getTracks = listOf(
     Track(
         id = 0,

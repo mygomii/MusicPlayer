@@ -1,4 +1,4 @@
-package com.mygomii.musicplayer.data.models
+package com.mygomii.musicplayer.domain.models
 
 import android.content.Context
 import kotlinx.serialization.Serializable

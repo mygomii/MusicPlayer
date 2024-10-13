@@ -12,6 +12,7 @@ media3 = "1.4.1"
 kotlinxSerializationJson = "1.7.1"
 navigation = "2.8.2"
 navigation-compose = "1.1.0"
+koin = "3.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,8 @@ androidx-media3-exoplayer-dash = { group = "androidx.media3", name = "media3-exo
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+koin-android = { group = "io.insert-koin", name ="koin-android", version.ref="koin"}
+koin-androidx-compose = { group = "io.insert-koin", name ="koin-androidx-compose", version.ref="koin"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
