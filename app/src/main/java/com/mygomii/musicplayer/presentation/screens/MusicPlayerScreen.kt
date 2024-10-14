@@ -31,6 +31,7 @@ import com.mygomii.musicplayer.PlayerManager
 import com.mygomii.musicplayer.data.models.getTracks
 import com.mygomii.musicplayer.domain.models.Track
 import com.mygomii.musicplayer.domain.models.getImage
+import kotlinx.coroutines.delay
 
 @Composable
 fun MusicPlayerScreen(playerManager: PlayerManager) {
@@ -46,9 +47,10 @@ fun MusicPlayerScreen(playerManager: PlayerManager) {
                 playbackPosition = playerManager.currentPosition
                 duration = playerManager.duration
             }
-            kotlinx.coroutines.delay(500L)
+            delay(500L)
         }
     }
+
 
     Column(
         modifier = Modifier

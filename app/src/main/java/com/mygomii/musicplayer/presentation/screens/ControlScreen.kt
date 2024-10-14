@@ -60,59 +60,99 @@ fun ControlScreen(
                 tint = Color.White,
             )
         }
-        Image(
-            painter = painterResource(id = track.image.getImage(context)),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(top = 24.dp)
-                .size(360.dp)
-                .clip(RoundedCornerShape(50.dp))
+
+        TrackImage(imageRes = track.image.getImage(context))
+        TrackInfo(title = track.title, artist = track.artist)
+        PlayPauseButton(isPlaying = isPlaying, onPlayPause = onPlayPause)
+
+        PlaybackSlider(
+            playbackPosition = playbackPosition,
+            duration = duration,
+            onSeek = onSeek
         )
-        Text(
-            text = track.title,
-            fontSize = 20.sp,
-            color = Color.White,
-            modifier = Modifier.padding(top = 16.dp)
+
+        TimeDisplay(
+            playbackPosition = playbackPosition,
+            duration = duration
         )
-        Text(
-            text = track.artist,
-            fontSize = 16.sp,
-            color = Color.LightGray,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        IconButton(
-            onClick = onPlayPause,
+    }
+}
+
+
+@Composable
+fun TrackImage(imageRes: Int) {
+    Image(
+        painter = painterResource(id = imageRes),
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .padding(top = 24.dp)
+            .size(360.dp)
+            .clip(RoundedCornerShape(50.dp))
+    )
+}
+
+@Composable
+fun TrackInfo(title: String, artist: String) {
+    Text(
+        text = title,
+        fontSize = 20.sp,
+        color = Color.White,
+        modifier = Modifier.padding(top = 16.dp)
+    )
+    Text(
+        text = artist,
+        fontSize = 16.sp,
+        color = Color.LightGray,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+}
+
+@Composable
+fun PlayPauseButton(isPlaying: Boolean, onPlayPause: () -> Unit) {
+    IconButton(
+        onClick = onPlayPause,
+        modifier = Modifier.size(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(
+                id = if (isPlaying) R.drawable.pause else R.drawable.play
+            ),
+            contentDescription = if (isPlaying) "Pause" else "Play",
+            tint = Color.White,
             modifier = Modifier.size(48.dp)
-        ) {
-            Icon(
-                painter = painterResource(
-                    id = if (isPlaying) R.drawable.pause else R.drawable.play
-                ),
-                contentDescription = if (isPlaying) "Pause" else "Play",
-                tint = Color.White,
-                modifier = Modifier.size(48.dp)
-            )
-        }
-        Slider(
-            value = playbackPosition.coerceAtLeast(0L).toFloat(),
-            onValueChange = { newPosition ->
-                onSeek(newPosition.toLong())
-            },
-            valueRange = 0f..duration.coerceAtLeast(0L).toFloat(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = playbackPosition.formatTime(), color = Color.White)
-            Text(text = duration.formatTime(), color = Color.White)
-        }
+    }
+}
+
+@Composable
+fun PlaybackSlider(
+    playbackPosition: Long,
+    duration: Long,
+    onSeek: (Long) -> Unit
+) {
+    Slider(
+        value = playbackPosition.coerceAtLeast(0L).toFloat(),
+        onValueChange = { newPosition ->
+            onSeek(newPosition.toLong())
+        },
+        valueRange = 0f..duration.coerceAtLeast(0L).toFloat(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+    )
+}
+
+@Composable
+fun TimeDisplay(playbackPosition: Long, duration: Long) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = playbackPosition.formatTime(), color = Color.White)
+        Text(text = duration.formatTime(), color = Color.White)
     }
 }
 
