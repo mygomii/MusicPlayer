@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,8 +39,8 @@ fun MusicPlayerScreen(playerManager: PlayerManager) {
     var currentTrack by remember { mutableStateOf<Track?>(null) }
     var showPlayingView by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(false) }
-    var playbackPosition by remember { mutableStateOf(0L) }
-    var duration by remember { mutableStateOf(0L) }
+    var playbackPosition by remember { mutableLongStateOf(0L) }
+    var duration by remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(playerManager) {
         while (true) {

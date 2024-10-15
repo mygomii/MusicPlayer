@@ -16,7 +16,6 @@ class MusicPlayerApp : Application() {
 
         startKoin {
             androidContext(this@MusicPlayerApp)
-//            modules(appModule)
         }
     }
 }

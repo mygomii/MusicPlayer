@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.mygomii.musicplayer.R
 import com.mygomii.musicplayer.domain.models.Track
 import com.mygomii.musicplayer.domain.models.getImage
+import formatTime
 
 @Composable
 fun ControlScreen(
@@ -37,7 +38,7 @@ fun ControlScreen(
     duration: Long,
     onPlayPause: () -> Unit,
     onSeek: (Long) -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -129,7 +130,7 @@ fun PlayPauseButton(isPlaying: Boolean, onPlayPause: () -> Unit) {
 fun PlaybackSlider(
     playbackPosition: Long,
     duration: Long,
-    onSeek: (Long) -> Unit
+    onSeek: (Long) -> Unit,
 ) {
     Slider(
         value = playbackPosition.coerceAtLeast(0L).toFloat(),
@@ -156,9 +157,3 @@ fun TimeDisplay(playbackPosition: Long, duration: Long) {
     }
 }
 
-fun Long.formatTime(): String {
-    val totalSeconds = this / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
-}

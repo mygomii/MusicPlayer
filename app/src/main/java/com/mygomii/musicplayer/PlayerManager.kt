@@ -44,17 +44,11 @@ class PlayerManager(context: Context) {
         get() = exoPlayer.duration
 
     fun playTrack(uri: String) {
-        try {
-            exoPlayer.apply {
-                setMediaItem(MediaItem.fromUri(uri))
-                prepare()
-                play()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            println("##### ${e.message}")
+        exoPlayer.apply {
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            play()
         }
-
     }
 
     fun play() {
