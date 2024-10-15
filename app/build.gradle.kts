@@ -68,4 +68,7 @@ dependencies {
     implementation(libs.bundles.media3)
     implementation(libs.bundles.navigation)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 }
