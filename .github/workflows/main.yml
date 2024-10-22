@@ -1,9 +1,9 @@
-name: Android Build and Slack Notification
+name: Build Debug APK
 
 on:
   push:
     branches:
-      - main  # 대상 브랜치를 지정하세요.
+      - main
 
 jobs:
   build:
@@ -19,32 +19,21 @@ jobs:
           distribution: 'adopt'
           java-version: '17' 
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper/
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: Get Commit Message
-        id: commit_msg
-        run: echo "COMMIT_MESSAGE=$(echo "${{ github.event.head_commit.message }}" | sed 's/"/\\"/g')" >> $GITHUB_ENV
-
-      - name: Upload APK as Artifact
+      - name: Upload Debug APK as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: app-debug.apk
-          path: ./artifact
-
-      - name: Upload APK to Slack
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_WEBHOOK_URL }}
-          COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
-        run: |
-          curl -F file=@./artifact/app-debug.apk \
-               -F "initial_comment=새로운 디버그 APK가 푸시되었습니다!\n커밋 메시지: ${COMMIT_MESSAGE}" \
-               -F channels=#your-slack-channel \
-               -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
-               https://slack.com/api/files.upload
+          name: debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk  # APK 파일 경로를 확인하세요.
