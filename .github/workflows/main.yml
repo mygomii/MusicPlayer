@@ -17,26 +17,34 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '17'  # 프로젝트에 맞는 JDK 버전으로 설정
+          java-version: '17' 
 
-      - name: Build with Gradle
-        run: ./gradlew assembleRelease
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
       - name: Get Commit Message
         id: commit_msg
-        run: echo "COMMIT_MESSAGE<<EOF" >> $GITHUB_ENV && echo "${{ github.event.head_commit.message }}" >> $GITHUB_ENV && echo "EOF" >> $GITHUB_ENV
+        run: echo "COMMIT_MESSAGE=$(echo "${{ github.event.head_commit.message }}" | sed 's/"/\\"/g')" >> $GITHUB_ENV
 
-      - name: Upload APK
+      - name: Upload APK as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-release.apk
-          path: app/build/outputs/apk/release/app-release.apk
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Send notification to Slack
-        uses: rtCamp/action-slack-notify@v2
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-debug.apk
+          path: ./artifact
+
+      - name: Upload APK to Slack
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_MESSAGE: |
-            *새로운 커밋이 푸시되었습니다!*
-            *메시지:* ${{ env.COMMIT_MESSAGE }}
-            *APK 다운로드:* [여기](${{ steps.upload.outputs.artifact_url }})
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_WEBHOOK_URL }}
+          COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
+        run: |
+          curl -F file=@./artifact/app-debug.apk \
+               -F "initial_comment=새로운 디버그 APK가 푸시되었습니다!\n커밋 메시지: ${COMMIT_MESSAGE}" \
+               -F channels=#your-slack-channel \
+               -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+               https://slack.com/api/files.upload
